@@ -1,19 +1,29 @@
 const dotenv = require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/connectDB");
+const Task = require("./models/taskModel");
+const taskRoutes = require("./routes/taskRoute");
 
 const app = express();
 
-// Routes
 
+// Middleware
+
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(taskRoutes)
+
+// .....Explained What is Middleware and its fuctionalities......
+// const logger = (req, res, next) => {
+//   console.log("Middleware ran...");
+//   console.log(req.method);
+//   next();
+// };
+
+
+// Routes
 app.get("/", (req, res) => {
   res.send("Home Page..");
-});
-
-// Create a Task
-app.post("/api/tasks", async (req, res) => {
-    console.log(req.body);
-    res.send("Task Created");
 });
 
 
