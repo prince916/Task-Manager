@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { URL } from "../App";
 import loadingImg from "../assets/loader.gif";
 
+// updated
+
 function TaskList() {
   const [tasks, setTasks] = useState([]);
   const [completedTask, setCompletedTask] = useState([]);
