@@ -12,8 +12,6 @@ function TaskList() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [taskID, setTaskID] = useState("");
-  
-
 
   const [formData, setformData] = useState({
     name: "",
@@ -52,6 +50,7 @@ function TaskList() {
       await axios.post(`${URL}/api/tasks`, formData);
       toast.success("Task added successfully");
       setformData({ ...formData, name: "" });
+      getTasks();
     } catch (error) {
       toast.error(error.message);
       console.log(error);
@@ -67,26 +66,46 @@ function TaskList() {
     }
   };
 
-const getSingleTask = async (task) => {
-    setformData({ name: task.name, completed: false });
-    setTaskID(task._id)
-    setIsEditing(true)
-};
+  useEffect(() => {
+    const cTask = tasks.filter((task) => {
+      return task.completed === true;
+    });
+    setCompletedTask(cTask);
+  }, [tasks]);
 
-const updateTask = async (e) => {
-    e.preventDefault()
-    if( name === "") {
-        return toast.error("Input field cannot be empty");
+  const getSingleTask = async (task) => {
+    setformData({ name: task.name, completed: false });
+    setTaskID(task._id);
+    setIsEditing(true);
+  };
+
+  const updateTask = async (e) => {
+    e.preventDefault();
+    if (name === "") {
+      return toast.error("Input field cannot be empty");
     }
     try {
-        await axios.put(`${URL}/api/tasks/${taskID}`, formData);
-        setformData({...formData, name: ""});
-        setformData(false);
-        getTasks();
+      await axios.put(`${URL}/api/tasks/${taskID}`, formData);
+      setformData({ ...formData, name: "" });
+      setIsEditing(false);
+      getTasks();
     } catch (error) {
-        toast.error(error.message);
+      toast.error(error.message);
     }
-};
+  };
+
+  const setToComplete = async (task) => {
+    const newFormData = {
+      name: task.name,
+      completed: true,
+    };
+    try {
+      await axios.put(`${URL}/api/tasks/${task._id}`, newFormData);
+      getTasks();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div>
@@ -98,14 +117,18 @@ const updateTask = async (e) => {
         isEditing={isEditing}
         updateTask={updateTask}
       />
-      <div className="--flex-between --pb">
-        <p>
-          <b>Total Tasks:</b> 0
-        </p>
-        <p>
-          <b>Completed Tasks:</b> 0
-        </p>
-      </div>
+      {tasks.length > 0 && (
+        <div className="--flex-between --pb">
+          <p>
+            <b>Total Tasks: </b> {tasks.length}
+          </p>
+          <p>
+            <b>Completed Tasks: </b>
+             {completedTask.length}
+          </p>
+        </div>
+      )}
+
       <hr />
       {isLoading && (
         <div className="--flex-center">
@@ -124,6 +147,7 @@ const updateTask = async (e) => {
                 index={index}
                 deleteTask={deleteTask}
                 getSingleTask={getSingleTask}
+                setToComplete={setToComplete}
               />
             );
           })}
